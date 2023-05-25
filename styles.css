@@ -1,0 +1,265 @@
+body {
+    background-color: orangered;
+    margin: 0;
+    font-family: rubik;
+    color: white;
+  }
+  .container {
+    padding: 40px;
+    margin: 0 auto;
+  }
+  h1 {
+    text-transform: uppercase;
+    text-align: center;
+    font-size: 95px;
+  }
+  .card {
+    list-style: none;
+    padding: 10px 30px 10px;
+    background-color: #f4f4f4;
+    color: #222;
+    text-align: center;
+    border-radius: 30%;
+  }
+  .card-title {
+    text-transform: uppercase;
+    font-size: 23px;
+    font-weight: normal;
+    margin-bottom: 0;
+    background-color: transparent;
+    text-shadow: 2px 0 #fff, -2px 0 #fff, 0 2px #fff, 0 -2px #fff,
+               1px 1px #fff, -1px -1px #fff, 1px -1px #fff, -1px 1px #fff;
+  }
+
+  .card-subtitle {
+    font-weight: lighter;
+    color: #666;
+    padding: 10px 0px 10px;
+    margin-top: 5px;
+    border-radius: 50%;
+    text-shadow: 2px 0 #000000, -2px 0 #000000, 0 2px #000000, 0 -2px #000000,
+               1px 1px #000000, -1px -1px #000000, 1px -1px #000000, -1px 1px #000000;
+  }
+
+  .card-image {
+    /*height: 180px;*/
+    width: 60%;
+    background-color: transparent;
+  }
+  .search {
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+  }
+  .search__input {
+    padding: 5px 20px 5px;
+    border-radius: 25%;
+    border-width: 5px;
+    border-color: yellow;
+    background-color: rgb(252, 166, 135);
+  }
+  .types {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    padding: 5px;
+  }
+
+  .type-img {
+    padding: 10px;
+    border-radius: 25%;
+    width: 5%;
+    margin: 10px;
+  }
+  .type-img:hover {
+    animation: bounce 0.5s linear;
+  }
+
+  #pokedex {
+    padding-inline-start: 0;
+    display: grid;
+    text-align: center;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 0.25fr));
+    grid-gap: 20px;
+  }
+  .card:hover {
+    animation: bounce 0.5s linear;
+  }
+  @keyframes bounce {
+    20% {
+      transform: translateY(-6px);
+    }
+    40% {
+      transform: translateY(0px);
+    }
+    60% {
+      transform: translateY(-2px);
+    }
+    80% {
+      transform: translateY(-0px);
+    }
+  }
+
+  .card--grass {
+    background-image: linear-gradient(to bottom right, #167a3b , #26cb4f);
+  }
+  .card--fire {
+    background-image: linear-gradient(to bottom right, #ab1f23 , #fd4c5a);
+  }
+  .card--water {
+    background-image: linear-gradient(to bottom right, #1452e2 , #87a7fc);
+  }
+  .card--normal {
+    background-image: linear-gradient(to bottom right, #73515d , #ca98a7);
+  }
+  .card--electric {
+    background-image: linear-gradient(to bottom right, #e3e32b , #fbfa74);
+  }
+  .card--ground {
+    background-image: linear-gradient(to bottom right, #a8702b , #6e4a1d);
+  }
+  .card--flying {
+    background-image: linear-gradient(to bottom right, #4a677d , #93b2c7);
+  }
+  .card--ice {
+    background-image: linear-gradient(to bottom right, #87d2f0 , #d4f1fb);
+  }
+  .card--rock {
+    background-image: linear-gradient(to bottom right, #49180c , #8b3d23);
+  }
+  .card--steel {
+    background-image: linear-gradient(to bottom right, #5e756d , #42bd94);
+  }
+  .card--psychic {
+    background-image: linear-gradient(to bottom right, #a42a6c , #f81c91);
+  }
+  .card--dark {
+    background-image: linear-gradient(to bottom right, #040706 , #5a5a79);
+  }
+  .card--ghost {
+    background-image: linear-gradient(to bottom right, #32346b , #916790);
+  }
+  .card--fighting {
+    background-image: linear-gradient(to bottom right, #994025 , #ee6238);
+  }
+  .card--bug {
+    background-image: linear-gradient(to bottom right, #1c4c27 , #3d984f);
+  }
+  .card--poison {
+    background-image: linear-gradient(to bottom right, #5e2d88 , #9c69d9);
+  }
+  .card--dragon {
+    background-image: linear-gradient(to bottom right, #478995 , #62c9d7);
+  }
+  .card--fairy {
+    background-image: linear-gradient(to bottom right, #961943 , #eb136a);
+  }
+
+  .card-subtitle--grass {
+    font-weight: lighter;
+    color: white;
+    margin-top: 5px;
+    background-color: rgb(38,203,79);
+  }
+  .card-subtitle--fire {
+    font-weight: lighter;
+    color: white;
+    margin-top: 5px;
+    background-color: rgb(252,77,88);
+  }
+  .card-subtitle--water {
+    font-weight: lighter;
+    color: white;
+    margin-top: 5px;
+    background-color: rgb(108,134,191);
+  }
+  .card-subtitle--normal {
+    font-weight: lighter;
+    color: white;
+    margin-top: 5px;
+    background-color: rgb(202,152,167);
+  }
+  .card-subtitle--electric {
+    font-weight: lighter;
+    color: white;
+    margin-top: 5px;
+    background-color: rgb(252,250,115);
+  }
+  .card-subtitle--ground {
+    font-weight: lighter;
+    color: white;
+    margin-top: 5px;
+    background-color: rgb(111,72,33);
+  }
+  .card-subtitle--flying {
+    font-weight: lighter;
+    color: white;
+    margin-top: 5px;
+    background-color: rgb(150,180,202);
+  }
+  .card-subtitle--bug {
+    font-weight: lighter;
+    color: white;
+    margin-top: 5px;
+    background-color: rgb(61,152,78);
+  }
+  .card-subtitle--poison {
+    font-weight: lighter;
+    color: white;
+    margin-top: 5px;
+    background-color: rgb(153,106,218);
+  }
+  .card-subtitle--ice {
+    font-weight: lighter;
+    color: white;
+    margin-top: 5px;
+    background-color: rgb(215,241,250);
+  }
+  .card-subtitle--rock {
+    font-weight: lighter;
+    color: white;
+    margin-top: 5px;
+    background-color: rgb(139,61,35);
+  }
+  .card-subtitle--steel {
+    font-weight: lighter;
+    color: white;
+    margin-top: 5px;
+    background-color: rgb(66,189,148);
+  }
+  .card-subtitle--psychic {
+    font-weight: lighter;
+    color: white;
+    margin-top: 5px;
+    background-color: rgb(246,29,145);
+  }
+  .card-subtitle--dark {
+    font-weight: lighter;
+    color: white;
+    margin-top: 5px;
+    background-color: rgb(90,90,121);
+  }
+  .card-subtitle--ghost {
+    font-weight: lighter;
+    color: white;
+    margin-top: 5px;
+    background-color: rgb(143,104,144);
+  }
+  .card-subtitle--fighting {
+    font-weight: lighter;
+    color: white;
+    margin-top: 5px;
+    background-color: rgb(192,85,57);
+  }
+  .card-subtitle--fairy {
+    font-weight: lighter;
+    color: white;
+    margin-top: 5px;
+    background-color: rgb(236,19,103);
+  }
+  .card-subtitle--dragon {
+    font-weight: lighter;
+    color: white;
+    margin-top: 5px;
+    background-color: rgb(104,204,217);
+  }
