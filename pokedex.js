@@ -58,22 +58,32 @@ const getDetailPokemon = async(pokemonlist) => {
 }
 
 const filterType = (event) => {
-    pokedex$$.innerHTML= '';
-    if(event.target.getAttribute('status') === 'deselected') {
-        let type = event.target.getAttribute('name');
-        event.target.setAttribute('status','selected');
-        filteredType = filteredName.filter((pokemon) => pokemon.types.includes(type));
-        if(filteredType.length === 0) {
-            pokedex$$.innerHTML = 'Not even a nibble...';
+    if(event.target.className !== 'type-img type-img--disabled') {
+        pokedex$$.innerHTML= '';
+        if(event.target.getAttribute('status') === 'deselected') {
+            for (const child of event.target.parentElement.children) {
+                if(child != event.target) {
+                    child.className = 'type-img type-img--disabled';
+                }
+            }
+
+            let type = event.target.getAttribute('name');
+            event.target.setAttribute('status','selected');
+            filteredType = filteredName.filter((pokemon) => pokemon.types.includes(type));
+            if(filteredType.length === 0) {
+                pokedex$$.innerHTML = 'Not even a nibble...';
+            } else {
+                printPokedex(filteredType);
+            }
         } else {
-            printPokedex(filteredType);
+            filteredType = pokedex;
+            printPokedex(pokedex);
+            event.target.setAttribute('status','deselected');
+            for (const child of event.target.parentElement.children) {
+                child.className = 'type-img';
+            }
         }
-    } else {
-        filteredType = pokedex;
-        printPokedex(pokedex);
-        event.target.setAttribute('status','deselected');
     }
-    
 }
 
 const searchNamePokemon = (event) => {

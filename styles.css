@@ -71,6 +71,9 @@ body {
     width: 5%;
     margin: 10px;
   }
+  .type-img--disabled {
+    opacity: 0.4;
+  }
   .type-img:hover {
     animation: bounce 0.5s linear;
   }
