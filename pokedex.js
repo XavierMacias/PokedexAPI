@@ -102,31 +102,52 @@ const searchNamePokemon = (event) => {
 
 const printPokedex = (pokedex) => {
     for(pokemon of pokedex) {
-        console.log(pokemon);
+        //console.log(pokemon);
         //console.log(pokedex);
         const card$$ = document.createElement('li');
+        card$$.className = 'card';
+
+        const cardFront$$ = document.createElement('div');
+        cardFront$$.className = 'card-face card-front';
+        const cardBack$$ = document.createElement('div');
+        cardBack$$.className = 'card-face card-back';
+
+        card$$.appendChild(cardFront$$);
+        card$$.appendChild(cardBack$$);
         // name
         const name$$ = document.createElement('h3');
         name$$.textContent = '#' + pokemon.id + ' ' + pokemon.name;
-        name$$.className = 'card card-title';
-        card$$.appendChild(name$$);
+        name$$.className = 'card-title';
+        cardFront$$.appendChild(name$$);
 
         // image
         const img$$ = document.createElement('img');
         img$$.setAttribute('src',pokemon.sprite);
-        img$$.className = 'card card-image';
-        card$$.appendChild(img$$);
+        img$$.className = 'card-image';
+        cardFront$$.appendChild(img$$);
 
         // types
         for(let j=0;j<pokemon.types.length;j++) {
             const type$$ = document.createElement('p');
             type$$.textContent = pokemon.types[j].toUpperCase();
-            type$$.className = 'card card-subtitle card-subtitle--' + pokemon.types[j];
-            card$$.className = 'card card--' + pokemon.types[0];
-            card$$.appendChild(type$$);
+            type$$.className = 'card-subtitle card-subtitle--' + pokemon.types[j];
+            card$$.className += ' card--' + pokemon.types[0];
+            cardFront$$.appendChild(type$$);
+        }
+
+        // abilities
+        for(let j=0;j<pokemon.abilities.length;j++) {
+            const ability$$ = document.createElement('p');
+            ability$$.textContent = pokemon.abilities[j].toUpperCase();
+            ability$$.className = 'card-ability';
+            cardBack$$.appendChild(ability$$);
         }
 
         pokedex$$.appendChild(card$$);
+
+        card$$.addEventListener('click', function() {
+            card$$.classList.toggle('is-clicked');
+        });
     }
 }
 

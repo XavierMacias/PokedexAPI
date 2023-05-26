@@ -16,19 +16,51 @@ body {
   .card {
     list-style: none;
     padding: 10px 30px 10px;
-    background-color: #f4f4f4;
-    color: #222;
-    text-align: center;
     border-radius: 30%;
+    text-align: center;
+    position: relative;
+    cursor: pointer;
+    transform-style: preserve-3d;
+    transform-origin: center right;
+    transition: transform 1s;
   }
+
+  .card.is-clicked {
+    transform: translateX(-100%) rotateY(-180deg);
+  }
+
+  .card-face {
+    backface-visibility: hidden;
+    /*position: absolute;*/
+  }
+
+  card-front {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+  }
+
+  .card-back {
+    transform: rotateY(180deg);
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+  }
+
+  .card-ability {
+    
+  }
+
   .card-title {
     text-transform: uppercase;
     font-size: 23px;
     font-weight: normal;
     margin-bottom: 0;
     background-color: transparent;
-    text-shadow: 2px 0 #fff, -2px 0 #fff, 0 2px #fff, 0 -2px #fff,
-               1px 1px #fff, -1px -1px #fff, 1px -1px #fff, -1px 1px #fff;
+    text-shadow: 2px 0 #000000, -2px 0 #000000, 0 2px #000000, 0 -2px #000000,
+               1px 1px #000000, -1px -1px #000000, 1px -1px #000000, -1px 1px #000000;
   }
 
   .card-subtitle {
@@ -85,9 +117,9 @@ body {
     grid-template-columns: repeat(auto-fit, minmax(320px, 0.25fr));
     grid-gap: 20px;
   }
-  .card:hover {
+  /*.card:hover {
     animation: bounce 0.5s linear;
-  }
+  }*/
   @keyframes bounce {
     20% {
       transform: translateY(-6px);
