@@ -1,9 +1,11 @@
 const pokedex$$ = document.body.querySelector('#pokedex');
 const search$$ = document.body.querySelector('.search');
 const types$$ = document.body.querySelector('.types');
+// input search
 const input$$ = document.createElement('input');
 input$$.placeholder = 'Search Pokémon...'
 
+// fight arena
 const arena$$ = document.body.querySelector('.arena');
 const userBar$$ = document.createElement('div');
 const rivalBar$$ = document.createElement('div');
@@ -24,6 +26,7 @@ let movements = [];
 let firstAttacker, secondAttacker;
 let user,rival;
 
+// get info type (resistances, weaknesses, etc...)
 const getTypeInfo = (url) => {
     fetch(url)
         .then(res2 => res2.json())
@@ -38,6 +41,7 @@ const getTypeInfo = (url) => {
     });
 }
 
+// get types and add to type array
 const getTypes = async() => {
     const res = await fetch('https://pokeapi.co/api/v2/type/');
     const resTypes = await res.json();
@@ -47,6 +51,7 @@ const getTypes = async() => {
     printTypes(resTypes.results);
 }
 
+// print type icons
 const printTypes = (types) => {
     for(let i=0;i<18;i++) {
         const type$$ = document.createElement('img');
@@ -61,12 +66,14 @@ const printTypes = (types) => {
     }
 } 
 
+// get pokemon names
 const getPokemon = async(numPokemon) => {
     const res = await fetch('https://pokeapi.co/api/v2/pokemon/?limit='+numPokemon);
     const resPokemon = await res.json();
     getDetailPokemon(resPokemon.results);
 }
 
+// get moves names that pokemon learn by level
 const movesNames = (array) => {
     let movesNames = [];
     for(move of array) {
@@ -78,6 +85,7 @@ const movesNames = (array) => {
     return movesNames;
 }
 
+// get levels which pokemon learn moves
 const movesLevels = (array) => {
     let levels = [];
     for(move of array) {
@@ -89,14 +97,16 @@ const movesLevels = (array) => {
     return levels;
 }
 
+// get pokemon detail
 const getDetailPokemon = async(pokemonlist) => {
     const pokemonPromises = pokemonlist.map(pokemon => fetch(pokemon.url).then(res => res.json()));
     const detailsPokemon = await Promise.all(pokemonPromises);
     for(details of detailsPokemon) {
+        // create pokemon specie object and add to array
         const pokemonSpecie = {
             name: details.name,
             sprite: details.sprites.other.dream_world.front_default,
-            types: details.types.map((type) => type.type.name),//.join(', '),
+            types: details.types.map((type) => type.type.name),
             stats: details.stats.map((stat) => stat.base_stat), // hp, attack, defense, sp-attack, sp-defense, speed
             abilities: details.abilities.map((ability) => { 
                 if(ability.is_hidden) {
@@ -115,8 +125,10 @@ const getDetailPokemon = async(pokemonlist) => {
         //console.log(pokemonSpecie);
         pokedex.push(pokemonSpecie);
     }
+    // filtered arrays
     filteredName = pokedex;
     filteredType = pokedex;
+    // print pokedex
     printPokedex(pokedex);
     getTypes();
     input$$.className = 'search__input';
@@ -125,6 +137,7 @@ const getDetailPokemon = async(pokemonlist) => {
 
 const filterType = (event) => {
     if(event.target.className !== 'type-img type-img--disabled') {
+        // clear pokemon list
         pokedex$$.innerHTML= '';
         if(event.target.getAttribute('status') === 'deselected') {
             for (const child of event.target.parentElement.children) {
@@ -132,7 +145,7 @@ const filterType = (event) => {
                     child.className = 'type-img type-img--disabled';
                 }
             }
-
+            // filter pokemon list by type
             let type = event.target.getAttribute('name');
             event.target.setAttribute('status','selected');
             filteredType = filteredName.filter((pokemon) => pokemon.types.includes(type));
@@ -153,6 +166,7 @@ const filterType = (event) => {
 }
 
 const searchNamePokemon = (event) => {
+    // search pokemon by name
     pokedex$$.innerHTML= '';
     const value = event.target.value.toLowerCase();
     filteredName = filteredType.filter((pokemon) => pokemon.name.toLowerCase().includes(value));
@@ -167,18 +181,18 @@ const searchNamePokemon = (event) => {
 }
 
 const getBattler = (specie) => {
+    // get battler for battle, get moveset
     let moves = function() {
         let i=0;
         let nameMoves = movesNames(specie.moves);
         let array = [];
-        //console.log(nameMoves);
         do {
             array.push(nameMoves[i]);
             i++;
         } while(i < nameMoves.length && i<4);
         return array;
     }
-
+    // and create battler object
     const battler = {
         name: specie.name,
         types: specie.types,
@@ -191,6 +205,7 @@ const getBattler = (specie) => {
     return battler;
 }
 
+// get the first pokemon to attack
 const getPriority = (user,rival) => {
     firstAttacker = user;
     secondAttacker = rival;
@@ -200,6 +215,7 @@ const getPriority = (user,rival) => {
     }
 }
 
+// move has STAB?
 const hasStab = (attacker, move) => {
     if (attacker.types.includes(move.type)) {
         return 1.5;
@@ -207,6 +223,7 @@ const hasStab = (attacker, move) => {
     return 1.0;
 }
 
+// get effectiveness of move
 const getEffectiveness = (defender, move) => {
     let eff = 1.0;
     const moveType = move.type;
@@ -227,16 +244,19 @@ const getEffectiveness = (defender, move) => {
      return eff;
 } 
 
+// add text
 const addText = (text) => {
     const dialogue$$ = document.createElement('p');
     dialogue$$.textContent = text;
                 
+    // max number of pararaphs
     if(battleText$$.childElementCount === 4) {
         battleText$$.firstChild.remove();
     }
     battleText$$.appendChild(dialogue$$);
 }
 
+// fight finishes
 const finishFight = () => {
     console.log('finish');
     battlers = [];
@@ -245,8 +265,10 @@ const finishFight = () => {
 
 const randomNumberBetween = (min, max) => Math.floor(Math.random() * (max - min)) + min;
 
+// use move
 const useMove = (attacker, defender, attackerMove) => {
     const link = attacker.moves.find((move) => move.move.name === attackerMove)//.move.url;
+    // get move info
     fetch(link.move.url)
         .then(res => res.json())
         .then((myJson) => {
@@ -260,6 +282,7 @@ const useMove = (attacker, defender, attackerMove) => {
             let damage = 0;
             let hit = Math.random() <= move.accuracy/100 && move.power > 0 && move.category != "status";
 
+            // decide physical or special moves
             let attack, defense;
             if(move.category == 'physical') {
                 attack = attacker.stats[1];
@@ -269,6 +292,7 @@ const useMove = (attacker, defender, attackerMove) => {
                 defense = defender.stats[4];
             }
 
+            // calculate damage
             if(hit) {
                 let eff = getEffectiveness(defender,move);
                 damage = Math.floor((0.01*hasStab(attacker,move)*randomNumberBetween(85,101)*eff)*((((defaultLevel*0.2+1)*attack*move.power)/(25*defense))+2));
@@ -288,6 +312,7 @@ const useMove = (attacker, defender, attackerMove) => {
             if(defender.name == rival.name) {
                 rivalBar$$.style.width = (rival.currentPS/rival.stats[0])*100+'%';
             }
+            // check if defender is fainted
             if(defender.currentPS <= 0) {
                 addText(defender.name + " fainted! " + attacker.name + " is the winner!");
                 setTimeout(finishFight, 2000);
@@ -295,8 +320,10 @@ const useMove = (attacker, defender, attackerMove) => {
      });
 } 
 
+// turn
 const turn = (user,rival,event) => {
     if(fighting) {
+        // set first pokemon to attack
         getPriority(user,rival);
         let rivalMove = rival.moveset[Math.floor(Math.random()*rival.moveset.length)];
     
@@ -307,6 +334,7 @@ const turn = (user,rival,event) => {
             firstMove = rivalMove;
             secondMove = event.target.textContent;
         }
+        // user and rival must attack
         useMove(firstAttacker, secondAttacker, firstMove);
         if(fighting) {
             useMove(secondAttacker, firstAttacker, secondMove);
@@ -314,6 +342,7 @@ const turn = (user,rival,event) => {
     }
 }
 
+// close arena div
 const closeCombat = () => {
     arena$$.innerHTML = '';
     arena$$.style.display = 'none';
@@ -326,11 +355,14 @@ const closeCombat = () => {
     } 
 }
 
+// init fight
 const initFight = (battlers) => {
     fighting = true;
+    // set user and rival pokemon
     user = getBattler(battlers[0]);
     rival = getBattler(battlers[1]);
     
+    // create user and rival sides and HP bars
     const userSide$$ = document.createElement('div');
     userSide$$.className = 'side';
     const rivalSide$$ = document.createElement('div');
@@ -359,6 +391,7 @@ const initFight = (battlers) => {
     arena$$.appendChild(userSide$$);
     arena$$.appendChild(battleText$$);
     
+    // create move buttons
     for(move of user.moveset) {
         const move$$ = document.createElement('button');
         move$$.textContent = move;
@@ -381,6 +414,7 @@ const initFight = (battlers) => {
 }
 
 const setFight = (event) => {
+    // set cards to will fight
     let card = event.target.parentElement.parentElement;
     card.classList.toggle('selected');
     if(card.getAttribute('fighting') == 'no') {
@@ -400,6 +434,7 @@ const setFight = (event) => {
 
 }
 
+// sort table (function from Internet)
 function sortTable(table) {
     switching = true;
     while (switching) {
@@ -422,10 +457,12 @@ function sortTable(table) {
   }
 
 const printPokedex = (pokedex) => {
+    // print list of pokemon
     for(pokemon of pokedex) {
         const card$$ = document.createElement('li');
         card$$.className = 'card';
 
+        // card front and card back
         const cardFront$$ = document.createElement('div');
         cardFront$$.className = 'card-face card-front';
         const cardBack$$ = document.createElement('div');
@@ -531,7 +568,7 @@ const printPokedex = (pokedex) => {
 
         const nameMoves = movesNames(pokemon.moves);
         const levelMoves = movesLevels(pokemon.moves);
-        
+        // add moves and learnt level in a table
         moveTable$$.appendChild(tableBody$$);
         for(let j=0;j<nameMoves.length;j++) {
             const tableRow$$ = document.createElement('tr');
@@ -567,6 +604,7 @@ const printPokedex = (pokedex) => {
         data$$.appendChild(weight$$);
         cardFront$$.appendChild(data$$);
 
+        // fight button
         const fightButton$$ = document.createElement('button');
         fightButton$$.textContent = 'FIGHT!';
 
