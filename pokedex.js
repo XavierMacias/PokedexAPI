@@ -3,14 +3,47 @@ const search$$ = document.body.querySelector('.search');
 const types$$ = document.body.querySelector('.types');
 const input$$ = document.createElement('input');
 input$$.placeholder = 'Search Pokémon...'
+
+const arena$$ = document.body.querySelector('.arena');
+const userBar$$ = document.createElement('div');
+const rivalBar$$ = document.createElement('div');
+const battleText$$ = document.createElement('div');
+battleText$$.className = 'textBattle';
+
+let battlers = [];
+let fighting = false;
+const defaultLevel = 30;
+
 const clearFilter$$ = document.createElement('button');
 let pokedex = [];
 let filteredName = [];
 let filteredType = [];
+let types = [];
+let movements = [];
+
+let firstAttacker, secondAttacker;
+let user,rival;
+
+const getTypeInfo = (url) => {
+    fetch(url)
+        .then(res2 => res2.json())
+        .then((myJson2) => {
+            const type = {
+                name: myJson2.name,
+                debilities: myJson2.damage_relations.double_damage_from.map(type => type.name),
+                resistances: myJson2.damage_relations.half_damage_from.map(type => type.name),
+                inmunities: myJson2.damage_relations.no_damage_from.map(type => type.name)
+            }
+            types.push(type);
+    });
+}
 
 const getTypes = async() => {
     const res = await fetch('https://pokeapi.co/api/v2/type/');
     const resTypes = await res.json();
+    for(let i=0;i<resTypes.results.length;i++) {
+        getTypeInfo(resTypes.results[i].url);
+    }
     printTypes(resTypes.results);
 }
 
@@ -75,6 +108,8 @@ const getDetailPokemon = async(pokemonlist) => {
             moves: details.moves,
             weight: details.weight/10,
             height: details.height/10,
+            sprite_front: details.sprites.front_default,
+            sprite_back: details.sprites.back_default,
             id: details.id
         }
         //console.log(pokemonSpecie);
@@ -131,34 +166,255 @@ const searchNamePokemon = (event) => {
     }
 }
 
+const getBattler = (specie) => {
+    let moves = function() {
+        let i=0;
+        let nameMoves = movesNames(specie.moves);
+        let array = [];
+        //console.log(nameMoves);
+        do {
+            array.push(nameMoves[i]);
+            i++;
+        } while(i < nameMoves.length && i<4);
+        return array;
+    }
+
+    const battler = {
+        name: specie.name,
+        types: specie.types,
+        stats: specie.stats.map((stat) => Math.round(((2*stat*defaultLevel)/100) + 5)),
+        moveset: moves(),
+        moves: specie.moves
+    };
+    battler.currentPS = battler.stats[0];
+
+    return battler;
+}
+
+const getPriority = (user,rival) => {
+    firstAttacker = user;
+    secondAttacker = rival;
+    if((rival.stats[5] > user.stats[5]) || ((rival.stats[5] == user.stats[5]) && Math.random() > 0.5)) {
+        firstAttacker = rival;
+        secondAttacker = user;
+    }
+}
+
+const hasStab = (attacker, move) => {
+    if (attacker.types.includes(move.type)) {
+        return 1.5;
+    }
+    return 1.0;
+}
+
+const getEffectiveness = (defender, move) => {
+    let eff = 1.0;
+    const moveType = move.type;
+
+     for(let i=0;i<defender.types.length;i++) {
+        let currentType = types.find((type) => type.name == defender.types[i]);
+        if(currentType.debilities.includes(moveType)) {
+            eff *= 2.0;
+        } 
+        if(currentType.resistances.includes(moveType)) {
+            eff *= 0.5;
+        } 
+        if(currentType.inmunities.includes(moveType)) {
+            eff *= 0.0;
+        }
+     }
+
+     return eff;
+} 
+
+const addText = (text) => {
+    const dialogue$$ = document.createElement('p');
+    dialogue$$.textContent = text;
+                
+    if(battleText$$.childElementCount === 4) {
+        battleText$$.firstChild.remove();
+    }
+    battleText$$.appendChild(dialogue$$);
+}
+
+const finishFight = () => {
+    console.log('finish');
+    battlers = [];
+    fighting = false;
+}
+
+const randomNumberBetween = (min, max) => Math.floor(Math.random() * (max - min)) + min;
+
+const useMove = (attacker, defender, attackerMove) => {
+    const link = attacker.moves.find((move) => move.move.name === attackerMove)//.move.url;
+    fetch(link.move.url)
+        .then(res => res.json())
+        .then((myJson) => {
+            const move = {
+                name: myJson.name,
+                accuracy: myJson.accuracy,
+                type: myJson.type.name,
+                power: myJson.power,
+                category: myJson.damage_class.name
+            }
+            let damage = 0;
+            let hit = Math.random() <= move.accuracy/100 && move.power > 0 && move.category != "status";
+
+            let attack, defense;
+            if(move.category == 'physical') {
+                attack = attacker.stats[1];
+                defense = defender.stats[2];
+            } else if(move.category == 'special') {
+                attack = attacker.stats[3];
+                defense = defender.stats[4];
+            }
+
+            if(hit) {
+                let eff = getEffectiveness(defender,move);
+                damage = Math.floor((0.01*hasStab(attacker,move)*randomNumberBetween(85,101)*eff)*((((defaultLevel*0.2+1)*attack*move.power)/(25*defense))+2));
+                if(damage == 0) damage = 1;
+                addText(attacker.name + " used " + attackerMove + "! " + defender.name + " loses " + damage + " PS!");
+                console.log(attacker.name + " used " + attackerMove + "! " + defender.name + " loses " + damage + " PS!")
+            } else {
+                addText(attacker.name + " used " + attackerMove + "! But if failed!");
+            }
+            defender.currentPS -= damage;
+            if(defender.currentPS < 0) {
+                defender.currentPS = 0;
+            }
+            if(defender.name == user.name) {
+                userBar$$.style.width = (user.currentPS/user.stats[0])*100+'%';
+            }
+            if(defender.name == rival.name) {
+                rivalBar$$.style.width = (rival.currentPS/rival.stats[0])*100+'%';
+            }
+            if(defender.currentPS <= 0) {
+                addText(defender.name + " fainted! " + attacker.name + " is the winner!");
+                setTimeout(finishFight, 2000);
+            }
+     });
+} 
+
+const turn = (user,rival,event) => {
+    if(fighting) {
+        getPriority(user,rival);
+        let rivalMove = rival.moveset[Math.floor(Math.random()*rival.moveset.length)];
+    
+        let firstMove = event.target.textContent;
+        let secondMove = rivalMove;
+
+        if(firstAttacker == rival) {
+            firstMove = rivalMove;
+            secondMove = event.target.textContent;
+        }
+        useMove(firstAttacker, secondAttacker, firstMove);
+        if(fighting) {
+            useMove(secondAttacker, firstAttacker, secondMove);
+        }
+    }
+}
+
+const closeCombat = () => {
+    arena$$.innerHTML = '';
+    arena$$.style.display = 'none';
+    for(const child of pokedex$$.children) {
+        console.log(child);
+        child.setAttribute('fighting','no');
+        if(child.classList.contains('selected')) {
+            child.classList.toggle('selected');
+        }
+    } 
+}
+
+const initFight = (battlers) => {
+    fighting = true;
+    user = getBattler(battlers[0]);
+    rival = getBattler(battlers[1]);
+    
+    const userSide$$ = document.createElement('div');
+    userSide$$.className = 'side';
+    const rivalSide$$ = document.createElement('div');
+    rivalSide$$.className = 'side';
+
+    const userMoves$$ = document.createElement('div');
+    const user$$ = document.createElement('img');
+    user$$.setAttribute('src',battlers[0].sprite_back);
+    
+    userBar$$.className = 'userBar';
+    userBar$$.style.width = (user.currentPS/user.stats[0])*100+'%';
+
+    const rival$$ = document.createElement('img');
+    rival$$.setAttribute('src',battlers[1].sprite_front);
+    rivalBar$$.className = 'userBar';
+    rivalBar$$.style.width = (rival.currentPS/rival.stats[0])*100+'%';
+
+    userSide$$.appendChild(user$$);
+    userSide$$.appendChild(userBar$$);
+    userSide$$.appendChild(userMoves$$);
+    rivalSide$$.appendChild(rivalBar$$);
+    rivalSide$$.appendChild(rival$$);
+
+    arena$$.style.display = 'inline-block';
+    arena$$.appendChild(rivalSide$$);
+    arena$$.appendChild(userSide$$);
+    arena$$.appendChild(battleText$$);
+    
+    for(move of user.moveset) {
+        const move$$ = document.createElement('button');
+        move$$.textContent = move;
+        move$$.className = 'moveButton';
+
+        userMoves$$.appendChild(move$$);
+        const moveButtons$$ = document.body.querySelectorAll('.moveButton');
+        console.log(moveButtons$$);
+
+        userMoves$$.addEventListener('click', (event) => {
+            turn(user,rival,event);
+        });
+    }
+    
+    finishBtn$$ = document.createElement('button');
+    finishBtn$$.textContent = 'Finish battle';
+    arena$$.appendChild(finishBtn$$);
+
+    finishBtn$$.addEventListener('click',closeCombat); 
+}
+
+const setFight = (event) => {
+    let card = event.target.parentElement.parentElement;
+    card.classList.toggle('selected');
+    if(card.getAttribute('fighting') == 'no') {
+        card.setAttribute('fighting','yes');
+        let battler = pokedex.find((poke) => poke.name == card.getAttribute('pokemon'));
+        battlers.push(battler);
+        if(battlers.length >= 2) {
+            initFight(battlers);
+        }
+    } else {
+        card.setAttribute('fighting','no');
+        let index = battlers.indexOf(battlers.find((bat) => bat.name == card.getAttribute('pokemon')));
+        if (index !== -1) {
+            battlers.splice(index, 1);
+        }
+    }
+
+}
+
 function sortTable(table) {
     switching = true;
-    /*Make a loop that will continue until
-    no switching has been done:*/
     while (switching) {
-      //start by saying: no switching is done:
       switching = false;
       rows = table.rows;
-      /*Loop through all table rows (except the
-      first, which contains table headers):*/
       for (i = 1; i < (rows.length - 1); i++) {
-        //start by saying there should be no switching:
         shouldSwitch = false;
-        /*Get the two elements you want to compare,
-        one from current row and one from the next:*/
         x = rows[i].getElementsByTagName("td")[0];
         y = rows[i + 1].getElementsByTagName("td")[0];
-        //check if the two rows should switch place:
         if (Number(x.innerHTML) > Number(y.innerHTML)) {
-            //if so, mark as a switch and break the loop:
             shouldSwitch = true;
             break;
-        }
-        
+        }     
       }
       if (shouldSwitch) {
-        /*If a switch has been marked, make the switch
-        and mark that a switch has been done:*/
         rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
         switching = true;
       }
@@ -311,14 +567,26 @@ const printPokedex = (pokedex) => {
         data$$.appendChild(weight$$);
         cardFront$$.appendChild(data$$);
 
+        const fightButton$$ = document.createElement('button');
+        fightButton$$.textContent = 'FIGHT!';
+
+        fightButton$$.className = 'fight_button';
+        cardFront$$.appendChild(fightButton$$);
+
         cardBack$$.appendChild(moveTable$$);
 
         pokedex$$.appendChild(card$$);
+
+        fightButton$$.addEventListener('click',setFight);
+
+        card$$.setAttribute('pokemon',pokemon.name);
+        card$$.setAttribute('fighting','no');
         card$$.addEventListener('click', function() {
-            card$$.classList.toggle('is-clicked');
+            if(card$$.getAttribute('fighting') == 'no') card$$.classList.toggle('is-clicked');
         });
     }
 }
+
 
 input$$.addEventListener('input',searchNamePokemon);
 

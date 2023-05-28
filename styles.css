@@ -7,6 +7,7 @@ body {
   .container {
     padding: 40px;
     margin: 0 auto;
+    position: relative;
   }
   h1 {
     text-transform: uppercase;
@@ -103,6 +104,12 @@ body {
     border-width: 2px;
   }
 
+  .selected {
+    border: solid;
+    border-color: black;
+    border-width: 5px;
+  }
+
   .card-image {
     /*height: 180px;*/
     width: 220px;
@@ -118,12 +125,12 @@ body {
     border-radius: 25%;
   }
   .cellTable {
-    font-size: 10px;
+    font-size: 12px;
   }
 
   .search {
     display: flex;
-    justify-content: center;
+    justify-content: space-evenly;
     padding: 20px;
   }
   .search__input {
@@ -132,6 +139,12 @@ body {
     border-width: 5px;
     border-color: yellow;
     background-color: rgb(252, 166, 135);
+  }
+  .fight_button {
+    padding: 5px 20px 5px;
+    border-radius: 20%;
+    background-color: red;
+    color: white;
   }
   .types {
     display: flex;
@@ -151,6 +164,30 @@ body {
   }
   .type-img:hover {
     animation: bounce 0.5s linear;
+  }
+
+  .arena {
+    width: 100%;
+    height: 400px;
+    position: relative;
+    background-color: white;
+    display: none;
+    text-align: center;
+  }
+
+  .side {
+    text-align: center;
+  }
+
+  .textBattle {
+    color: black;
+  }
+
+  .userBar {
+    background-color: green;
+    height: 8px;
+    max-width: 60px;
+    margin-left: 685px;
   }
 
   #pokedex {
